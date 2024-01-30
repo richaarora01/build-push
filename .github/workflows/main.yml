@@ -1,0 +1,80 @@
+# This is the main workflow that creates a new image and push to Openshift image stream which in turn triggers the deployment
+
+name: Main - Build Image and Push to Openshift Registry for Dev Deployment
+
+# Controls when the workflow will run
+on:
+  # To run automatically
+  push:
+    branches: [main]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch: 
+
+env:
+  ENV_NAME: dev
+  APP_NAME: "Richa"
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build and push"
+  output-environment:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "null"
+    outputs:
+      environment: ${{ env.ENV_NAME }}
+
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    needs: [output-environment]
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Git Checkout
+        uses: actions/checkout@v3
+      
+      # Get the version number which is prefixed with the Github release branches in format release/{version}
+      - name: Get Release Version
+        run: |
+          branch=${GITHUB_REF##*/}
+          version=$(echo $branch | cut -d "/" -f2-)
+          echo "releaseVersion=$version" >> $GITHUB_ENV
+      
+      # Get Git latest short Sha# from the release branch used. This Sha# will be used in image tagging as well as DC Pod labelling.
+      - name: Get git commit short sha
+        id: sha
+        run: |
+          shortSha=$(echo $(git rev-parse --short HEAD) | cut -c1-7)
+          echo "gitsha=$shortSha" >> $GITHUB_ENV
+      
+      # Prints vital release paramters used
+      - name: Print Release Variables
+        run: |
+          echo "Release Application: ${{ env.APP_NAME }}"
+          echo "Release Environment: ${{ env.ENV_NAME }}"
+
+      #Build image jag-justin-courtlist-api
+      - name: Build image justin-courtlist-api
+        run: |
+          docker run -t test-image .
+      
+      #Login to OpenShift Container Repository - Silver
+      - name: Authenticate and set context
+        uses: redhat-actions/oc-login@v1
+        env:
+        # These can be stored in secrets, if desired.
+         OPENSHIFT_USER: richa-arora
+         OPENSHIFT_NAMESPACE: richa-arora-dev
+        with:
+         openshift_server_url: ${{ secrets.OPENSHIFT_REGISTRY }}
+         openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
+  
+      #Push image justin-courtlist-api to OpenShift Image stream - Silver
+     # - name: Push Image justin-courtlist-api to Openshift Image Stream - Silver
+     #   env:
+     #     IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY_SILVER}}/${{secrets.OPENSHIFT_LICENSE_PLATE_SILVER}}-tools/${{ env.APP_NAME }}:${{ env.ENV_NAME }}
+     #   run: |
+     #     docker tag jag-justin-courtlist-api_justin-court-list-api ${IMAGE}
+     #     docker push ${IMAGE}
+    
