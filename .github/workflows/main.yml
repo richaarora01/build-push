@@ -57,7 +57,7 @@ jobs:
       #Build image jag-justin-courtlist-api
       - name: Build image justin-courtlist-api
         run: |
-          docker run -t test-image .
+          docker build -t test-image .
       
       #Login to OpenShift Container Repository - Silver
       - name: Authenticate and set context
