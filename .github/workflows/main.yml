@@ -12,7 +12,7 @@ on:
 
 env:
   ENV_NAME: dev
-  APP_NAME: "Richa"
+  APP_NAME: "Richa-App"
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -55,7 +55,7 @@ jobs:
           echo "Release Environment: ${{ env.ENV_NAME }}"
 
       #Build image jag-justin-courtlist-api
-      - name: Build image justin-courtlist-api
+      - name: Build image test
         run: |
           docker build -t test-image .
       
@@ -70,11 +70,11 @@ jobs:
          openshift_server_url: ${{ secrets.OPENSHIFT_REGISTRY }}
          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
   
-      #Push image justin-courtlist-api to OpenShift Image stream - Silver
-     # - name: Push Image justin-courtlist-api to Openshift Image Stream - Silver
-     #   env:
-     #     IMAGE: ${{secrets.OPENSHIFT_EXTERNAL_REPOSITORY_SILVER}}/${{secrets.OPENSHIFT_LICENSE_PLATE_SILVER}}-tools/${{ env.APP_NAME }}:${{ env.ENV_NAME }}
-     #   run: |
-     #     docker tag jag-justin-courtlist-api_justin-court-list-api ${IMAGE}
-     #     docker push ${IMAGE}
+      #Push image test to OpenShift Image stream - Silver
+      - name: Push Image test to Openshift Image Stream - Silver
+        env:
+          IMAGE: ${{ env.APP_NAME }}:${{ env.ENV_NAME }}
+        run: |
+          docker tag test-image ${IMAGE}
+          docker push ${IMAGE}
     
