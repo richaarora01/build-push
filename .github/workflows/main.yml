@@ -71,7 +71,9 @@ jobs:
          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       - name: Login to OpenShift Container Repository - Silver
-        run: docker tag test-image ${{ secrets.OPENSHIFT_IMAGE_REGISTRY }}
+        run: |
+          oc registry login
+          docker tag test-image ${{ secrets.OPENSHIFT_IMAGE_REGISTRY }}
   
       #Push image test to OpenShift Image stream - Silver
       - name: Push Image test to Openshift Image Stream - Silve
