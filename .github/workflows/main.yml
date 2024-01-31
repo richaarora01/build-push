@@ -71,7 +71,7 @@ jobs:
          openshift_token: ${{ secrets.OPENSHIFT_TOKEN }}
 
       - name: Login to OpenShift Container Repository - Silver
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{secrets.OPENSHIFT_IMAGE_REPOSITORY}}
   
