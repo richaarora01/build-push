@@ -76,5 +76,5 @@ jobs:
       #Push image test to OpenShift Image stream - Silver
       - name: Push Image test to Openshift Image Stream - Silve
         run: |
-          docker push test-immage
+          docker push ${{ secrets.OPENSHIFT_IMAGE_REGISTRY }}
     
