@@ -1,15 +1,28 @@
-# Pull base image
-FROM debian:latest
+FROM node:18-alpine AS base
+RUN apk add --no-cache g++ make py3-pip libc6-compat
+WORKDIR /app
+COPY package*.json ./
+EXPOSE 3000
 
-# Dockerfile Maintainer
-MAINTAINER Richa Arora "aroraricha606@gmail.com"
+FROM base AS builder
+WORKDIR /app
+COPY . .
+RUN npm run build
 
-# Install nginx and adjust nginx config to stay in foreground
-RUN apt-get update && apt-get install --no-install-recommends -y nginx; \
- echo "daemon off;" >> /etc/nginx/nginx.conf
+FROM base AS production
+WORKDIR /app
 
-# Expose HTTP
-EXPOSE 80
+# ENV NODE_ENV production
+RUN npm ci --ignore-scripts
 
-# Start nginx
-CMD ["/usr/sbin/nginx"]
+RUN addgroup -g 1003 -S nodegroup
+RUN adduser -S nextuser -u 1003
+USER nextuser
+
+COPY --from=builder /app/.next ./.next
+RUN chown nextuser:nodegroup ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/public ./public
+
+CMD npm start
