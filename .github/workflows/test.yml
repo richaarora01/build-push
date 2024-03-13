@@ -1,5 +1,4 @@
-name: Main - Build Image and Push to Openshift Registry for Dev Deployment
-
+name: test
 # Controls when the workflow will run
 on:
   # To run automatically
