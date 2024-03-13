@@ -1,0 +1,19 @@
+name: Main - Build Image and Push to Openshift Registry for Dev Deployment
+
+# Controls when the workflow will run
+on:
+  # To run automatically
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: build
+        run: docker build Dockerfile
+     
