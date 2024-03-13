@@ -6,7 +6,10 @@ EXPOSE 3000
 
 FROM base AS builder
 WORKDIR /app
+RUN ls -ltr
 COPY . .
+RUN ls -ltr
+RUN pwd
 RUN npm run build
 
 FROM base AS production
